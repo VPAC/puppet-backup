@@ -1,0 +1,116 @@
+#!/bin/bash
+
+# This backup script is managed by PUPPET
+
+# Variables
+BACKUP_DEST=backups@<%= backup_server %>
+FQDN=`hostname -f`
+EXIT_STATUS=0
+SLEEP_HRS=4
+SLEEP_SECS=$(( RANDOM%$(( $SLEEP_HRS*3600 )) ))
+LOGFILE=/tmp/$FQDN-`date --iso`.log
+
+# Get the number 1 or 0, based on the day of week
+# so we at least get a backup for yesterday and today
+DAY_OF_WEEK_NUM=`date "+%u"`
+MODULO=`expr ${DAY_OF_WEEK_NUM} % 2`
+
+IONICE=`/usr/bin/which ionice`
+if [ -n "$IONICE" ] ; then
+	IONICE="$IONICE -c3"
+fi
+
+# Functions
+log_info() {
+	logger -t $0 -p local0.notice -i "[info] $@" ; echo "`date` $@" >> $LOGFILE
+}
+
+log_error () {
+	logger -t $0 -p local0.err -i "[error] $@" ; echo "`date` $@" >> $LOGFILE
+}
+
+log_warn () {
+	logger -t $0 -p local0.warning -i "[warning] $0" ; echo "`date` $@" >> $LOGFILE
+}
+
+
+log_info "Starting backup script"
+
+log_info "Backing up to $BACKUP_DEST"
+
+# Sleep for that time.
+#echo "`date` Sleeping for $(echo "scale=4; $SLEEP_SECS/3600" | bc) hrs"
+#sleep $SLEEP_SECS
+
+# Get the list of mounted filsystems,
+# but don't backup the filesystems named:
+# backup|xenguests|home|srbdata|squid
+FILESYSTEMS=`mount -l -t xfs,ext4,ext3,ext2 | awk '{print $3}' | egrep -iv "backup|xenguests|home|srbdata|squid"`
+ 
+log_info "Backing up filesystems: $FILESYSTEMS"
+
+for FILESYSTEM in $FILESYSTEMS; do
+
+	# Get the size of the FS in 1GB blocks
+	SIZE=`df -B 1073741824 -P ${FILESYSTEM} | grep ${FILESYSTEM} | awk '{print $2}'`
+
+	# Don't backup filesystems greater than 99GB
+	if [ $SIZE -gt 199 ]; then
+		log_warn "Skipping ${FILESYSTEM}: size is greater than 149GB"
+		continue
+	fi
+
+	# If the FS is / then add 'root' to the filename
+	if [ "$FILESYSTEM" == "/" ]; then
+		FS_NAME="_root"
+	else
+		FS_NAME=`echo $FILESYSTEM | tr '/' '_'`
+	fi
+			
+	# Define the backup file, which will look like
+	#   staff.vpac.org_root_0.tar.gz
+	BACKUP_FILE=${FQDN}${FS_NAME}_${MODULO}.tar.gz
+	
+	# Output status message
+	log_info "Filesystem $FILESYSTEM => $BACKUP_FILE"
+	
+	# Generate the exclude list
+	cd $FILESYSTEM || continue
+	( [ "$FILESYSTEM" = / ] && find ./tmp -mount ! -name tmp 2>/dev/null; echo "./tmp/$BACKUP_FILE" || cat /dev/null ) >/tmp/exc.$$
+	
+	# Remove the old backup file from the server
+	ssh $BACKUP_DEST "rm -f $BACKUP_FILE"
+	
+	# Create the new backup file
+	$IONICE nice tar -czf $BACKUP_DEST:$BACKUP_FILE --one-file-system --ignore-failed-read --rsh-command=/usr/bin/ssh -X /tmp/exc.$$ . 2>&1 | grep -v "socket ignored" | grep -v "file changed as we read it" | grep -v "Cannot stat: No such file or directory" | grep -v "File removed before we read it"
+	
+	# Check exit status of tar file
+	if [ $? -gt 1 ]; then 
+		log_err "$FILESYSTEM => Backup failed."
+		EXIT_STATUS=1
+		continue
+	else 
+		log_info "$FILESYSTEM => Backup completed."
+	fi
+	
+	# Remove the temp exclude file
+	rm /tmp/exc.$$
+
+done
+
+log_info "Backup script completed."
+
+mkdir -p /var/log/backups
+mv $LOGFILE /var/log/backups
+
+# Delete backup log files older than 30 days
+cd /var/log/backups; find . -maxdepth 1 -name "*.log" -ctime +30 -exec rm -f {} +
+
+if [ $EXIT_STATUS -eq 1 ]
+then
+	cat $LOGFILE
+fi
+
+exit $EXIT_STATUS
+
+# vim:syntax=sh
