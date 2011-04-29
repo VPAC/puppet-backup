@@ -46,20 +46,6 @@ class backup {
       path => "/usr/bin:/usr/sbin:/bin:/sbin",
       creates => "/root/.ssh/id_rsa.pub",
     }
-    
-    # Remove the old backup script
-    file { "/usr/local/sbin/grid-backup.sh":
-      ensure  => absent,
-    }
-
-    # Remove the old backup script cronjob
-#    cron { backup:
-#      ensure => absent,
-#      command => "export IONICE=`/usr/bin/which ionice` ; if [ -n \"\$IONICE\" ] ; then export IONICE=\"\$IONICE -c3\"; fi ; \$IONICE /usr/local/sbin/grid-backup.sh",
-#      user => root,
-#      hour => fqdn_rand_andy(5),
-#      minute => fqdn_rand_andy(59)
-#    }
 
     # Install the backup script
     file { "/usr/local/sbin/nightly-backup.sh":
