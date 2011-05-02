@@ -11,7 +11,7 @@ class backup {
     @@ssh_authorized_key { "root@$fqdn":
       type => ssh-rsa,
       key  => $rootsshkey,
-      user => backup,
+      user => backups,
       tag  => 'backup'
     }
     
