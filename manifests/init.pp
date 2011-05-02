@@ -2,28 +2,21 @@
 class backup {
 
   # import the various definitions
-  File <<| tag == 'backup' |>>
+  Ssh_authorized_key <<| tag == 'backup' |>>
 
   define service()
   {
     include backup::backup_target
 
-    @@file { "/etc/backup/keys/${fqdn}_authorized_keys":
-      ensure  => present,
-      content => template( "backup/backup-ssh-keys.erb" ),
-      notify  => Exec[compile-keys],
-      tag     => 'backup',
+    @@ssh_authorized_key { "root@$fqdn":
+      type => ssh-rsa,
+      key  => $rootsshkey,
+      user => backup,
+      tag  => 'backup'
     }
+    
   }
-
-  # Generate the authorized_keys file
-  exec { "compile-keys":
-    command     => "cat /etc/backup/keys/* > ~backups/.ssh/authorized_keys",
-    path        => "/usr/bin:/usr/sbin:/bin:/sbin",
-    refreshonly => true;
-  }
-
-
+  
   class backup_target {
 
     $backup_server = "isis.in.vpac.org"
