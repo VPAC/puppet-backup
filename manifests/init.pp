@@ -61,8 +61,8 @@ class backup {
       ensure => present,
       command => "/usr/local/sbin/nightly-backup.sh",
       user => root,
-      hour => fqdn_rand_andy(5),
-      minute => fqdn_rand_andy(59)
+      hour => fqdn_rand(5),
+      minute => fqdn_rand(59)
     }
   }
 
