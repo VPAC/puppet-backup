@@ -6,7 +6,7 @@ class backup {
     
 }
   
-class backup_target {
+class backup::target {
   
   $backup_server = "isis.in.vpac.org"
     
