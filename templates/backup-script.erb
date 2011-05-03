@@ -6,8 +6,6 @@
 BACKUP_DEST=backups@<%= backup_server %>
 FQDN=`hostname -f`
 EXIT_STATUS=0
-SLEEP_HRS=4
-SLEEP_SECS=$(( RANDOM%$(( $SLEEP_HRS*3600 )) ))
 LOGFILE=/tmp/$FQDN-`date --iso`.log
 
 # Get the number 1 or 0, based on the day of week
@@ -33,14 +31,9 @@ log_warn () {
 	logger -t $0 -p local0.warning -i "[warning] $0" ; echo "`date` $@" >> $LOGFILE
 }
 
-
 log_info "Starting backup script"
 
 log_info "Backing up to $BACKUP_DEST"
-
-# Sleep for that time.
-#echo "`date` Sleeping for $(echo "scale=4; $SLEEP_SECS/3600" | bc) hrs"
-#sleep $SLEEP_SECS
 
 # Get the list of mounted filsystems,
 # but don't backup the filesystems named:
@@ -54,9 +47,9 @@ for FILESYSTEM in $FILESYSTEMS; do
 	# Get the size of the FS in 1GB blocks
 	SIZE=`df -B 1073741824 -P ${FILESYSTEM} | grep ${FILESYSTEM} | awk '{print $2}'`
 
-	# Don't backup filesystems greater than 99GB
-	if [ $SIZE -gt 199 ]; then
-		log_warn "Skipping ${FILESYSTEM}: size is greater than 149GB"
+	# Don't backup filesystems greater than 249GB
+	if [ $SIZE -gt 249 ]; then
+		log_warn "Skipping ${FILESYSTEM}: size is greater than 249GB"
 		continue
 	fi
 
