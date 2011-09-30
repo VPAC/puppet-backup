@@ -38,7 +38,7 @@ log_info "Backing up to $BACKUP_DEST"
 # Get the list of mounted filsystems,
 # but don't backup the filesystems named:
 # backup|xenguests|home|srbdata|squid
-FILESYSTEMS=`mount -l -t xfs,ext4,ext3,ext2 | awk '{print $3}' | egrep -iv "backup|xenguests|home|srbdata|squid"`
+FILESYSTEMS=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "backup|xenguests|home|srbdata|squid"`
  
 log_info "Backing up filesystems: $FILESYSTEMS"
 
