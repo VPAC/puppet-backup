@@ -12,7 +12,7 @@ max_fs_size=249
 
 # modulo is the number of days backups to keep on the server
 day_num=`date "+%u"`
-modulo=`expr ${day_num} % <% days_to_keep %>`
+modulo=`expr ${day_num} % <%= days_to_keep %>`
 
 # check for ionice and use it if found
 ionice=`/usr/bin/which ionice`
