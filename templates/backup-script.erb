@@ -99,6 +99,8 @@ function main () {
 
   log_info "Starting backup script on ${fqdn}"
 
+  touch ~/.ssh/known_hosts
+
   for server in ${backup_servers} ; do
     if [ `grep ${server} ~/.ssh/known_hosts | wc -l` -eq 0 ] ; then
       /usr/bin/ssh-keyscan -trsa ${server} >> ~/.ssh/known_hosts 2>/dev/null
