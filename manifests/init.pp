@@ -22,13 +22,6 @@ class backup::target {
     unless => "grep ${backup_servers} /root/.ssh/known_hosts",
   }
   
-  # Generate a new SSH key, if it doesn't exist
-  exec { "generate-new-key":
-    command => "ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ''",
-    path => "/usr/bin:/usr/sbin:/bin:/sbin",
-    creates => "/root/.ssh/id_rsa.pub",
-  }
-  
   # Install the backup script
   file { "/usr/local/sbin/nightly-backup.sh":
     ensure  => present,

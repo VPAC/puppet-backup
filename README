@@ -1,0 +1,20 @@
+The backup class depends on the following being defined *somewhere*
+
+You can add it to the backup modules init.pp or to e.g. a base class,
+where it might be useful for other classes. 
+
+
+  # Define root's ssh key
+  @@ssh_authorized_key { "root@$fqdn":
+    type => ssh-rsa,
+    key  => $rootsshkey,
+    user => backups,
+    tag  => 'host',
+  }
+
+  # Generate a new SSH key, if it doesn't exist
+  exec { "generate-new-key":
+    command => "ssh-keygen -q -t rsa -f /root/.ssh/id_rsa -N ''",
+    path => "/usr/bin:/usr/sbin:/bin:/sbin",
+    creates => "/root/.ssh/id_rsa.pub",
+  }
