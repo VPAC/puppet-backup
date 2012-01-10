@@ -2,20 +2,13 @@
 class backup {
 
   # import the various definitions
-  Ssh_authorized_key <<| tag == 'backup' |>>
-    
+  Ssh_authorized_key <<| tag == 'host' |>>
+
 }
   
 class backup::target {
-  
-  $backup_server = "isis.in.vpac.org"
-    
-  @@ssh_authorized_key { "root@$fqdn":
-    type => ssh-rsa,
-    key  => $rootsshkey,
-    user => backups,
-    tag  => 'backup'
-  }
+
+  $backup_servers = ['isis.in.vpac.org', 'charles.in.vpac.org']
   
   # Make sure bzip2 installed - mainly for the lean debian installs
   package { "bzip2":
@@ -24,9 +17,9 @@ class backup::target {
   
   # Do the SSH-keyscan so backup isn't prompted
   exec { "ssh-keyscan":
-    command => "/usr/bin/ssh-keyscan -trsa $backup_server >> /root/.ssh/known_hosts",
+    command => "/usr/bin/ssh-keyscan -trsa ${backup_servers} >> /root/.ssh/known_hosts",
     path => "/usr/bin:/usr/sbin:/bin:/sbin",
-    unless => "grep $backup_server /root/.ssh/known_hosts",
+    unless => "grep ${backup_servers} /root/.ssh/known_hosts",
   }
   
   # Generate a new SSH key, if it doesn't exist
@@ -40,17 +33,17 @@ class backup::target {
   file { "/usr/local/sbin/nightly-backup.sh":
     ensure  => present,
     content => template( "backup/backup-script.erb" ),
-    mode   => 744,
-    owner  => root,
-    group  => root,
+    mode    => 750,
+    owner   => root,
+    group   => root,
   }
   
   # Backup script will sleep a random number of seconds (0 - 5 hrs) before starting backup process
   cron { backup:
-    ensure => present,
+    ensure  => present,
     command => "/usr/local/sbin/nightly-backup.sh",
-    user => root,
-    hour => fqdn_rand(5),
-    minute => fqdn_rand(59)
+    user    => root,
+    hour    => fqdn_rand(5),
+    minute  => fqdn_rand(59)
   }
 }
