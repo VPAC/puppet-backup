@@ -9,6 +9,9 @@ class backup {
 class backup::target {
 
   $backup_servers = ['isis.in.vpac.org', 'charles.in.vpac.org']
+
+  # number of days backups to keep
+  $days_to_keep = 3
   
   # Make sure bzip2 installed - mainly for the lean debian installs
   package { "bzip2":
