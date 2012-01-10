@@ -19,17 +19,21 @@ if [ -n "$ionice" ] ; then
   ionice="$ionice -c3"
 fi
 
+
 function log_info() {
   logger -t $0 -p local0.notice -i "[info] $@" ; echo "`date` $@" >> $logfile
 }
+
 
 function log_error () {
   logger -t $0 -p local0.err -i "[error] $@" ; echo "`date` $@" >> $logfile
 }
 
+
 function log_warn () {
   logger -t $0 -p local0.warning -i "[warning] $0" ; echo "`date` $@" >> $logfile
 }
+
 
 function backup_fs () {
 
@@ -75,14 +79,14 @@ function backup_fs () {
     # check exit status of tar process (not the greps)
     if [ ${PIPESTATUS[0]} -gt 1 ]; then
       log_error "${fs} => ${server} => Backup failed."
-      rm /tmp/exc.$$
       exit_status=1
     else
       log_info "${fs} => ${server} => Backup completed."
-      rm /tmp/exc.$$
     fi
 
   done
+
+  rm /tmp/exc.$$
 }
 
 
