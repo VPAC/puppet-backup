@@ -107,7 +107,7 @@ function main () {
   log_info "Backup script completed."
 
   # delete backup log files older than 30 days
-  cd `{logdir}`; find . -maxdepth 1 -name "*.log" -ctime +30 -exec rm -f {} +
+  cd ${logdir}; find . -maxdepth 1 -name "*.log" -ctime +30 -exec rm -f {} +
 
   if [ ${exit_status} -gt 1 ] ; then
     cat ${logfile}
