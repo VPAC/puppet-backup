@@ -74,7 +74,7 @@ function backup_fs () {
 
     # check exit status of tar process (not the greps)
     if [ ${PIPESTATUS[0]} -gt 1 ]; then
-      log_err "${fs} => ${server} => Backup failed."
+      log_error "${fs} => ${server} => Backup failed."
       rm /tmp/exc.$$
       exit_status=1
     else
