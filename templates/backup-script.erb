@@ -103,6 +103,10 @@ function main () {
     if [ `grep ${server} ~/.ssh/known_hosts | wc -l` -eq 0 ] ; then
       /usr/bin/ssh-keyscan -trsa ${server} >> ~/.ssh/known_hosts 2>/dev/null
     fi
+    rev_addr=`host ${server} | grep "has address" | sed -e "s/.* has address \(.*\)/\1/g"`
+    if [ `grep ${rev_addr} ~/.ssh/known_hosts | wc -l` -eq 0 ] ; then
+      /usr/bin/ssh-keyscan -trsa ${rev_addr} >> ~/.ssh/known_hosts 2>/dev/null
+    fi
   done
 
   # Get the list of mounted filsystems,  but don't backup the filesystems named:
