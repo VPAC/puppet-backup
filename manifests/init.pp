@@ -17,9 +17,9 @@ class backup::target {
   
   # Do the SSH-keyscan so backup isn't prompted
   exec { "ssh-keyscan":
-    command => "/usr/bin/ssh-keyscan -trsa ${backup_servers} >> /root/.ssh/known_hosts",
+    command => "/usr/bin/ssh-keyscan -trsa ${backup_servers}[0] >> /root/.ssh/known_hosts",
     path => "/usr/bin:/usr/sbin:/bin:/sbin",
-    unless => "grep ${backup_servers} /root/.ssh/known_hosts",
+    unless => "/bin/true grep ${backup_servers} /root/.ssh/known_hosts",
   }
   
   # Install the backup script

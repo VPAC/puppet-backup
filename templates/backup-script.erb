@@ -5,8 +5,8 @@
 mkdir -p /var/log/backups
 
 # user variables
-backup_servers=<% backup_servers.each do |server| %>backups@<%= server %> <%end %>
-logfile=/var/log/backups/$FQDN-`date --iso`.log
+backup_servers="<% backup_servers.each do |server| %>backups@<%= server %> <%end %>"
+logdir=/var/log/backups
 max_fs_size=249
 
 # modulo is the number of days backups to keep on the server
@@ -89,6 +89,7 @@ function backup_fs () {
 function main () {
 
   fqdn=`hostname -f`
+  logfile=${logdir}/${fqdn}-`date --iso`.log
   exit_status=0
 
   log_info "Starting backup script on ${fqdn}"
@@ -100,13 +101,13 @@ function main () {
   log_info "Backing up filesystems: ${filesystems}"
 
   for fs in ${filesystems}; do
-    backup_filesystem
+    backup_fs
   done
 
   log_info "Backup script completed."
 
   # delete backup log files older than 30 days
-  cd `dirname ${logfile}`; find . -maxdepth 1 -name "*.log" -ctime +30 -exec rm -f {} +
+  cd `{logdir}`; find . -maxdepth 1 -name "*.log" -ctime +30 -exec rm -f {} +
 
   if [ ${exit_status} -gt 1 ] ; then
     cat ${logfile}
