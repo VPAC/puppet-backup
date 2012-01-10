@@ -63,7 +63,7 @@ function backup_fs () {
   cd ${fs} || continue
   ( [ "${fs}" = / ] && find ./tmp -mount ! -name tmp 2>/dev/null; echo "./tmp/${backup_filename}" || cat /dev/null ) >/tmp/exc.$$
 
-  for server in $backup_dests ; do
+  for server in ${backup_dests} ; do
 
     log_info "Backing up ${backup_filename} to ${server}"
 
@@ -99,9 +99,9 @@ function main () {
 
   log_info "Starting backup script on ${fqdn}"
 
-  for server in $backup_server ; do
+  for server in ${backup_servers} ; do
     if [ `grep ${server} ~/.ssh/known_hosts | wc -l` -eq 0 ] ; then
-      /usr/bin/ssh-keyscan -trsa ${server} >> /root/.ssh/known_hosts 2>/dev/null
+      /usr/bin/ssh-keyscan -trsa ${server} >> ~/.ssh/known_hosts 2>/dev/null
     fi
   done
 
