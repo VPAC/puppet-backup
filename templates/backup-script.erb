@@ -121,7 +121,7 @@ function main () {
 
   exclude="backup|xenguests|home|srbdata|squid|GMT"
   if [ "${exclude_regex}" != "" ] ; then
-    exclude=${exclude}|${exclude_regex}
+    exclude="${exclude}|${exclude_regex}"
   fi 
 
   filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "${exclude}"`
