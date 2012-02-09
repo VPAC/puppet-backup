@@ -111,9 +111,20 @@ function main () {
     fi
   done
 
+  if [ -f /etc/puppet-backup.conf ] ; then
+    source /etc/puppet-backup.conf
+  fi
+
   # Get the list of mounted filsystems,  but don't backup the filesystems named:
   # backup|xenguests|home|srbdata|squid|GMT
-  filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "backup|xenguests|home|srbdata|squid|GMT"`
+  # or anything in the exclude_regex from /etc/puppet-backup.conf
+
+  exclude="backup|xenguests|home|srbdata|squid|GMT"
+  if [ "${exclude_regex}" != "" ] ; then
+    exclude=${exclude}|${exclude_regex}
+  fi 
+
+  filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "${exclude}"`
 
   log_info "Backing up filesystems: ${filesystems}"
 
