@@ -8,21 +8,36 @@ class backup {
   
 class backup::target {
 
-  $backup_servers = ['isis.in.vpac.org', 'charles.in.vpac.org']
+  $backup_script = '/usr/local/sbin/nightly-backup.sh'
 
-  # number of days backups to keep
-  $days_to_keep = 3
+  if defined($backup_max_fs_size) {
+  }
+  else {
+    $backup_max_fs_size = 249
+  }
   
+  if defined($backup_username) {
+  }
+  else {
+    $backup_username = 'backups'
+  }
+  
+  if defined($backup_days_to_keep) {
+  }
+  else {
+    $backup_days_to_keep = 3
+  }
+
   # Make sure bzip2 installed - mainly for the lean debian installs
   package { "bzip2":
     ensure => installed,
   }
   
   # Install the backup script
-  file { "/usr/local/sbin/nightly-backup.sh":
+  file { $backup_script:
     ensure  => present,
     content => template( "backup/backup-script.erb" ),
-    mode    => 750,
+    mode    => '0750',
     owner   => root,
     group   => root,
   }
@@ -30,9 +45,19 @@ class backup::target {
   # Backup script will sleep a random number of seconds (0 - 5 hrs) before starting backup process
   cron { backup:
     ensure  => present,
-    command => "/usr/local/sbin/nightly-backup.sh",
+    command => $backup_script,
     user    => root,
     hour    => fqdn_rand(5),
     minute  => fqdn_rand(59)
   }
+
+  file { '/var/log/backups':
+    ensure => directory,
+    user   => root, 
+    group  => root,
+    mode   => '0750',
+  }
+
 }
+
+

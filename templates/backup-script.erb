@@ -2,17 +2,15 @@
 
 # This backup script is managed by PUPPET
 
-mkdir -p /var/log/backups
-
 # user variables
 backup_servers="<% backup_servers.each do |server| %><%= server %> <%end %>"
-backup_dests="<% backup_servers.each do |server| %>backups@<%= server %> <%end %>"
+backup_dests="<% backup_servers.each do |server| %><%= backup_username %>@<%= server %> <%end %>"
 logdir=/var/log/backups
-max_fs_size=249
+max_fs_size=<%= backup_max_fs_size %>
 
 # modulo is the number of days backups to keep on the server
 day_num=`date "+%u"`
-modulo=`expr ${day_num} % <%= days_to_keep %>`
+modulo=`expr ${day_num} % <%= backup_days_to_keep %>`
 
 # check for ionice and use it if found
 ionice=`/usr/bin/which ionice`
@@ -111,21 +109,12 @@ function main () {
     fi
   done
 
-  if [ -f /etc/puppet-backup.conf ] ; then
-    source /etc/puppet-backup.conf
+  exclude=<%= backup_mount_excludes_regex %> 
+  if [ "$exclude" == "" ] ; then
+      filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}'`
+  else
+      filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "${exclude}"`
   fi
-
-  # Get the list of mounted filsystems,  but don't backup the filesystems named:
-  # backup|xenguests|home|srbdata|squid|GMT
-  # or anything in the exclude_regex from /etc/puppet-backup.conf
-
-  exclude="backup|xenguests|home|srbdata|squid|GMT"
-  if [ "${exclude_regex}" != "" ] ; then
-    exclude="${exclude}|${exclude_regex}"
-  fi 
-
-  filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "${exclude}"`
-
   log_info "Backing up filesystems: ${filesystems}"
 
   for fs in ${filesystems}; do
