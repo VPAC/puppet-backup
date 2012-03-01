@@ -11,16 +11,12 @@ Required
 $backup_servers = ['server1', 'server2']
 # Mounts to exclude
 $backup_mount_excludes_regex = 'home|backups'
-
-Optional (Defaults displayed)
------------------------------
 # number of days backups to keep
 $backup_days_to_keep = 3
 # SSH user on backup host
 $backup_username = 'backups'
 # Don't backup filesystems greater than (in GB)
 $backup_max_fs_size = 249
-$backup_path_excludes_regex = 'home|backups'
 
 
 Set up

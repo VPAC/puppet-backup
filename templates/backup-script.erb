@@ -109,7 +109,7 @@ function main () {
     fi
   done
 
-  exclude=<%= backup_mount_excludes_regex %> 
+  exclude="<%= backup_mount_excludes_regex %>"
   if [ "$exclude" == "" ] ; then
       filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}'`
   else

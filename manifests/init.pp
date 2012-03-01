@@ -10,24 +10,6 @@ class backup::target {
 
   $backup_script = '/usr/local/sbin/nightly-backup.sh'
 
-  if defined($backup_max_fs_size) {
-  }
-  else {
-    $backup_max_fs_size = 249
-  }
-  
-  if defined($backup_username) {
-  }
-  else {
-    $backup_username = 'backups'
-  }
-  
-  if defined($backup_days_to_keep) {
-  }
-  else {
-    $backup_days_to_keep = 3
-  }
-
   # Make sure bzip2 installed - mainly for the lean debian installs
   package { "bzip2":
     ensure => installed,
@@ -53,7 +35,7 @@ class backup::target {
 
   file { '/var/log/backups':
     ensure => directory,
-    user   => root, 
+    owner  => root, 
     group  => root,
     mode   => '0750',
   }
