@@ -1,14 +1,55 @@
+Overview
+========
+Puppet module to backup a file system and send it to a remote server via SSH
+
+Variables needed
+================
+
+Required
+--------
+# List of backup server to use
+$backup_servers = ['server1', 'server2']
+# Mounts to exclude
+$backup_mount_excludes_regex = 'home|backups'
+
+Optional (Defaults displayed)
+-----------------------------
+# number of days backups to keep
+$backup_days_to_keep = 3
+# SSH user on backup host
+$backup_username = 'backups'
+# Don't backup filesystems greater than (in GB)
+$backup_max_fs_size = 249
+$backup_path_excludes_regex = 'home|backups'
+
+
+Set up
+======
+
+Backup server
+-------------
+
+node 'backupserver.mydomain' {
+     include backup
+}
+
+Backup target
+-------------
+node 'host-needing-backup.mydomain {
+     include backup::target
+}
+
+
+SSH Keys
+--------
 The backup class depends on the following being defined *somewhere*
-
-You can add it to the backup modules init.pp or to e.g. a base class,
-where it might be useful for other classes. 
-
+It needs to be on every node that you are backing up.
 
   # Define root's ssh key
   @@ssh_authorized_key { "root@$fqdn":
     type => ssh-rsa,
     key  => $rootsshkey,
-    user => backups,
+    user => $backup_username,
     tag  => 'host',
   }
 
