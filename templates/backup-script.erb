@@ -7,6 +7,9 @@ backup_servers="<% backup_servers.each do |server| %><%= server %> <%end %>"
 backup_dests="<% backup_servers.each do |server| %><%= backup_username %>@<%= server %> <%end %>"
 logdir=/var/log/backups
 max_fs_size=<%= backup_max_fs_size %>
+exclude_mounts="<%= backup_exclude_mounts_regex %>"
+exclude_files="<%= backup_exclude_files %>"
+
 
 # modulo is the number of days backups to keep on the server
 day_num=`date "+%u"`
@@ -61,6 +64,12 @@ function backup_fs () {
   cd ${fs} || continue
   ( [ "${fs}" = / ] && find ./tmp -mount ! -name tmp 2>/dev/null; echo "./tmp/${backup_filename}" || cat /dev/null ) >/tmp/exc.$$
 
+  if [ "${exclude_files}" != "" ] ; then
+    for file in ${exclude_files} ; do
+      echo ${file} >> /tmp/exc.$$
+    done
+  fi
+
   for server in ${backup_dests} ; do
 
     log_info "Backing up ${backup_filename} to ${server}"
@@ -109,11 +118,10 @@ function main () {
     fi
   done
 
-  exclude="<%= backup_mount_excludes_regex %>"
-  if [ "$exclude" == "" ] ; then
+  if [ "$exclude_mounts" == "" ] ; then
       filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}'`
   else
-      filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "${exclude}"`
+      filesystems=`mount -l -t xfs,ext4,ext3,ext2,simfs | awk '{print $3}' | egrep -iv "${exclude_mounts}"`
   fi
   log_info "Backing up filesystems: ${filesystems}"
 

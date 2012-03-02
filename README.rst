@@ -9,8 +9,10 @@ Required
 --------
 # List of backup server to use
 $backup_servers = ['server1', 'server2']
-# Mounts to exclude
-$backup_mount_excludes_regex = 'home|backups'
+# Mounts to exclude, separated by a pipe
+$backup_exclude_mounts_regex = 'home|backups'
+# File patterns to exclude, space separated
+$backup_exclude_files = '/tmp/* /var/tmp/*'
 # number of days backups to keep
 $backup_days_to_keep = 3
 # SSH user on backup host
