@@ -12,6 +12,8 @@ $backup_servers = ['server1', 'server2']
 # Mounts to exclude, separated by a pipe
 $backup_exclude_mounts_regex = 'home|backups'
 # File patterns to exclude, space separated
+# To override on a per-node basis, remove from site.pp
+# and set up the per node values
 $backup_exclude_files = '/tmp/* /var/tmp/*'
 # number of days backups to keep
 $backup_days_to_keep = 3
