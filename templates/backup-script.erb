@@ -8,7 +8,7 @@ backup_dests="<% backup_servers.each do |server| %><%= backup_username %>@<%= se
 logdir=/var/log/backups
 max_fs_size=<%= backup_max_fs_size %>
 exclude_mounts="<%= backup_exclude_mounts_regex %>"
-<% if has_variable?("backup_exclude_files") then %>exclude_files="<%= backup_exclude_files %>" <% else %>exclude_files="" <% end %>
+<% if has_variable?("backup_exclude_files") then %>exclude_files="<%= backup_exclude_files %>"<% end %>
 
 # modulo is the number of days backups to keep on the server
 day_num=`date "+%u"`
