@@ -11,10 +11,13 @@ Required
 $backup_servers = ['server1', 'server2']
 # Mounts to exclude, separated by a pipe
 $backup_exclude_mounts_regex = 'home|backups'
-# File patterns to exclude, space separated
-# To override on a per-node basis, remove from site.pp
-# and set up the per node values
-$backup_exclude_files = '/tmp/* /var/tmp/*'
+# Directories to exclude, space separated. To override on a per-node basis,
+# remove from site.pp and add to the node definition
+$backup_exclude_dirs = '/tmp /var/tmp'
+# Files to exclude, space separated. To override on a per-node basis,
+# remove from site.pp and add to the node definition
+$backup_exclude_files = '/etc/passwd'
+
 # number of days backups to keep
 $backup_days_to_keep = 3
 # SSH user on backup host
