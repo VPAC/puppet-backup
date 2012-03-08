@@ -72,7 +72,7 @@ function backup_fs () {
 
   if [ "${exclude_dirs}" != "" ] ; then
     for dir in ${exclude_dirs} ; do
-      find ${dir} >> tmp/exc.$$
+      find ${dir} >> /tmp/exc.$$
     done
   fi
 
