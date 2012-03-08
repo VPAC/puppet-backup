@@ -120,6 +120,8 @@ function main () {
   fi
   log_info "Backing up filesystems: ${filesystems}"
 
+  touch /tmp/exclude.$$
+
   if [ "${exclude_files}" != "" ] ; then
     for file in ${exclude_files} ; do
       echo ${file} >> /tmp/exclude.$$
