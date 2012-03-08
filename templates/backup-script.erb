@@ -62,20 +62,8 @@ function backup_fs () {
 
   # generate the exclude list
   cd ${fs} || continue
-  ( [ "${fs}" = / ] && find ./tmp -mount ! -name tmp 2>/dev/null; echo "./tmp/${backup_filename}" || cat /dev/null ) >/tmp/exc.$$
-
-  if [ "${exclude_files}" != "" ] ; then
-    for file in ${exclude_files} ; do
-      echo ".${file}" >> /tmp/exc.$$
-    done
-  fi
-
-  if [ "${exclude_dirs}" != "" ] ; then
-    for dir in ${exclude_dirs} ; do
-      find ${dir} >> /tmp/exc.$$
-      sed -i -e "s/\(^\/.*$\)/.\1/" /tmp/exc.$$
-    done
-  fi
+  cp /tmp/exclude.$$ /tmp/exc.$$
+  ( [ "${fs}" = / ] && find ./tmp -mount ! -name tmp 2>/dev/null; echo "./tmp/${backup_filename}" || cat /dev/null ) >>/tmp/exc.$$
 
   for server in ${backup_dests} ; do
 
@@ -132,9 +120,25 @@ function main () {
   fi
   log_info "Backing up filesystems: ${filesystems}"
 
+  if [ "${exclude_files}" != "" ] ; then
+    for file in ${exclude_files} ; do
+      echo ${file} >> /tmp/exclude.$$
+    done
+  fi
+
+  if [ "${exclude_dirs}" != "" ] ; then
+    for dir in ${exclude_dirs} ; do
+      find ${dir} >> /tmp/exclude.$$
+    done
+  fi
+
+  sed -i -e "s/\(^\/.*$\)/.\1/" /tmp/exclude.$$
+
   for fs in ${filesystems}; do
     backup_fs
   done
+
+  rm /tmp/exclude.$$
 
   log_info "Backup script completed."
 
