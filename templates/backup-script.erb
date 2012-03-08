@@ -66,13 +66,14 @@ function backup_fs () {
 
   if [ "${exclude_files}" != "" ] ; then
     for file in ${exclude_files} ; do
-      echo ${file} >> /tmp/exc.$$
+      echo ".${file}" >> /tmp/exc.$$
     done
   fi
 
   if [ "${exclude_dirs}" != "" ] ; then
     for dir in ${exclude_dirs} ; do
       find ${dir} >> /tmp/exc.$$
+      sed -i -e "s/\(^\/.*$\)/.\1/" /tmp/exc.$$
     done
   fi
 
