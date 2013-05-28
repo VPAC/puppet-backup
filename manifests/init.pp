@@ -5,7 +5,7 @@ class backup {
   Ssh_authorized_key <<| tag == 'host' |>>
 
 }
-  
+
 class backup::target {
 
   $backup_script = '/usr/local/sbin/nightly-backup.sh'
@@ -14,7 +14,7 @@ class backup::target {
   package { "bzip2":
     ensure => installed,
   }
-  
+
   # Install the backup script
   file { $backup_script:
     ensure  => present,
@@ -23,7 +23,7 @@ class backup::target {
     owner   => root,
     group   => root,
   }
-  
+
   # Backup script will sleep a random number of seconds (0 - 5 hrs) before starting backup process
   cron { backup:
     ensure  => present,
@@ -35,11 +35,8 @@ class backup::target {
 
   file { '/var/log/backups':
     ensure => directory,
-    owner  => root, 
+    owner  => root,
     group  => root,
     mode   => '0750',
   }
-
 }
-
-
